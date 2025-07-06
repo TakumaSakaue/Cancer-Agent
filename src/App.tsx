@@ -339,8 +339,44 @@ function MainPanel() {
 `}
           </div>
         </div>
+        <AgentCommInline />
       </div>
     </main>
+  )
+}
+
+function AgentCommInline() {
+  // Agent間通信のリアルタイム連携表示
+  const flows = [
+    { from: '治療法エージェント', to: '新薬開発エージェント', msg: 'データ分析結果を共有中...' },
+    { from: '論文分析エージェント', to: '治療法エージェント', msg: '治療法の提案を送信中...' },
+    { from: '治療法エージェント', to: '論文分析エージェント', msg: '新薬情報を更新中...' },
+  ]
+  const [activeIdx, setActiveIdx] = useState(0)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIdx(idx => (idx + 1) % flows.length)
+    }, 1800)
+    return () => clearInterval(timer)
+  }, [flows.length])
+
+  return (
+    <div className="agent-comm-glass-card" style={{marginTop:'2.2rem', marginBottom:'0', minWidth:320, maxWidth:600, width:'100%', padding:'1.2rem 1.1rem', gap:'1.1rem'}}>
+      <div className="agent-comm-header" style={{marginBottom:'0.2rem'}}>
+        <span className="agent-comm-title" style={{fontSize:'1.08rem'}}>💬 エージェント間リアルタイム連携</span>
+      </div>
+      <div className="agent-comm-list" style={{gap:'0.5rem', marginBottom:'0.2rem'}}>
+        {flows.map((f, i) => (
+          <div key={i} className={`agent-comm-row${i === activeIdx ? ' active' : ''}`} style={{fontSize:'0.97rem', padding:'0.1rem 0'}}>
+            <span className="agent-comm-from">{f.from}</span>
+            <span className="agent-comm-arrow">→</span>
+            <span className="agent-comm-to">{f.to}</span>
+            <span className="agent-comm-msg">{f.msg}</span>
+            {i === activeIdx && <span className="agent-comm-dot"></span>}
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
