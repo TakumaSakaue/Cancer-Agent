@@ -312,11 +312,19 @@ body, #root {
   vertical-align: middle;
 }
 .ai-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--glass-dark-text);
+  font-family: 'Sora', 'Inter', 'Avenir', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #5bb6c9 0%, #b6c2d9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  text-transform: uppercase;
   margin-right: 0.5rem;
-  letter-spacing: 1px;
+  text-align: left;
+  display: inline-block;
 }
 .ai-desc {
   display: block;
@@ -620,4 +628,134 @@ body, #root {
 .login-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.agent-comm-glass-card {
+  min-width: 420px;
+  max-width: 98vw;
+  margin: auto;
+  padding: 2.5rem 2.2rem 2.2rem 2.2rem;
+  background: rgba(255,255,255,0.82);
+  border-radius: 2.2rem;
+  box-shadow: 0 8px 40px 0 rgba(200, 200, 200, 0.13), 0 1.5px 8px 0 rgba(200, 200, 200, 0.10);
+  border: 1.5px solid rgba(255,255,255,0.45);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.2rem;
+}
+.agent-comm-header {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+.agent-comm-title {
+  font-family: 'Sora', 'Inter', 'Avenir', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #5bb6c9 0%, #b6c2d9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  text-transform: uppercase;
+  display: inline-block;
+}
+.agent-comm-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+.agent-comm-row {
+  display: flex;
+  align-items: center;
+  font-size: 1.08rem;
+  color: #222;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding-left: 0.2rem;
+  transition: color 0.2s;
+}
+.agent-comm-row .agent-comm-arrow {
+  margin: 0 0.7rem;
+  font-size: 1.2rem;
+  color: #5bb6c9;
+}
+.agent-comm-row .agent-comm-msg {
+  margin-left: 0.7rem;
+  font-size: 0.98rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+.agent-comm-row.active {
+  color: #5bb6c9;
+  font-weight: 800;
+  background: rgba(91,182,201,0.08);
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 16px 0 #5bb6c933;
+}
+.agent-comm-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #5bb6c9 0%, #b6c2d9 100%);
+  margin-left: 0.8rem;
+  box-shadow: 0 0 8px #5bb6c9;
+  animation: comm-blink 1s infinite alternate;
+}
+@keyframes comm-blink {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+.agent-comm-section {
+  width: 100%;
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.agent-comm-subtitle {
+  font-size: 1.08rem;
+  color: #5bb6c9;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+.agent-comm-task {
+  font-size: 1.08rem;
+  color: #222;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+}
+.agent-comm-btn {
+  width: 100%;
+  padding: 1.1rem 0;
+  border-radius: 1.2rem;
+  border: none;
+  background: linear-gradient(90deg, #5bb6c9 0%, #b6c2d9 100%);
+  color: #222;
+  font-size: 1.13rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  box-shadow: 0 4px 24px 0 #5bb6c933;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.2s cubic-bezier(.4,2,.3,1);
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+}
+.agent-comm-btn-icon {
+  font-size: 1.3rem;
+  color: #5bb6c9;
+}
+.agent-comm-btn:active {
+  transform: scale(0.98);
 } 

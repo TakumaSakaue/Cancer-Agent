@@ -11,6 +11,7 @@ function App() {
         isLoggedIn ? <ImportScreen /> : <LoginScreen onLogin={() => setIsLoggedIn(true)} />
       } />
       <Route path="/dashboard" element={isLoggedIn ? <DashboardScreen /> : <Navigate to="/" />} />
+      <Route path="/agent-comm" element={isLoggedIn ? <AgentCommScreen /> : <Navigate to="/" />} />
     </Routes>
   )
 }
@@ -212,7 +213,6 @@ function ImportScreen() {
 function DashboardScreen() {
   // 進行ゲージのアニメーション用
   const [progress, setProgress] = useState([0, 0, 0, 0])
-  // 100%までアニメーション
   useEffect(() => {
     const target = [100, 100, 100, 100]
     let frame: number
@@ -341,6 +341,50 @@ function MainPanel() {
         </div>
       </div>
     </main>
+  )
+}
+
+function AgentCommScreen() {
+  // 通信ログのサンプルデータ
+  const flows = [
+    { from: '治療法エージェント', to: '新薬開発エージェント', msg: 'データ分析結果を共有' },
+    { from: '論文分析エージェント', to: '治療法エージェント', msg: '治療法の提案を送信' },
+    { from: '治療法エージェント', to: '論文分析エージェント', msg: '新薬情報を更新' },
+  ]
+  const [activeIdx, setActiveIdx] = useState(0)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIdx(idx => (idx + 1) % flows.length)
+    }, 1800)
+    return () => clearInterval(timer)
+  }, [flows.length])
+
+  return (
+    <div className="app" style={{background:'linear-gradient(135deg, #fff 0%, #f7fafd 100%)'}}>
+      <div className="agent-comm-glass-card">
+        <div className="agent-comm-header">
+          <span className="agent-comm-title">エージェント間通信</span>
+        </div>
+        <div className="agent-comm-list">
+          {flows.map((f, i) => (
+            <div key={i} className={`agent-comm-row${i === activeIdx ? ' active' : ''}`}>
+              <span className="agent-comm-from">{f.from}</span>
+              <span className="agent-comm-arrow">→</span>
+              <span className="agent-comm-to">{f.to}</span>
+              <span className="agent-comm-msg">：{f.msg}</span>
+              {i === activeIdx && <span className="agent-comm-dot"></span>}
+            </div>
+          ))}
+        </div>
+        <div className="agent-comm-section">
+          <div className="agent-comm-subtitle">タスク詳細</div>
+          <div className="agent-comm-task">臨床試験データ収集</div>
+          <button className="agent-comm-btn">
+            <span className="agent-comm-btn-icon">&#8767;</span> 有効性評価
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
