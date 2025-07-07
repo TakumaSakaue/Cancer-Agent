@@ -401,19 +401,21 @@ function MainPanel() {
 }
 
 function AgentCommScreen() {
-  // エージェント情報
+  // エージェント情報（中心にCANCER AGENT、周囲に3エージェント）
   const agents = [
-    { name: 'CANCER AGENT', color: '#f472b6', x: 50, y: 10, icon: '🧬' },
-    { name: '治療法エージェント', color: '#6476b6', x: 10, y: 70, icon: '💊' },
-    { name: '新薬開発エージェント', color: '#5bb6c9', x: 90, y: 70, icon: '🧪' },
-    { name: '論文分析エージェント', color: '#facc15', x: 50, y: 90, icon: '📄' },
+    { name: 'CANCER AGENT', color: '#f472b6', x: 50, y: 50, icon: '🧬' }, // 中心
+    { name: '治療法エージェント', color: '#6476b6', x: 50, y: 10, icon: '💊' },
+    { name: '新薬開発エージェント', color: '#5bb6c9', x: 90, y: 80, icon: '🧪' },
+    { name: '論文分析エージェント', color: '#facc15', x: 10, y: 80, icon: '📄' },
   ]
-  // 通信フロー
+  // flows: 中心(CANCER AGENT)と各エージェントを双方向で繋ぐ
   const flows = [
-    { from: 1, to: 2, msg: '治療法→新薬: データ分析結果を送信中...' },
-    { from: 2, to: 3, msg: '新薬→論文: 新薬情報を共有中...' },
-    { from: 3, to: 0, msg: '論文→AGENT: 論文要約を送信中...' },
     { from: 0, to: 1, msg: 'AGENT→治療法: 全体連携を最適化中...' },
+    { from: 1, to: 0, msg: '治療法→AGENT: データ分析結果を送信中...' },
+    { from: 0, to: 2, msg: 'AGENT→新薬: 新薬開発情報を共有中...' },
+    { from: 2, to: 0, msg: '新薬→AGENT: 新薬情報を送信中...' },
+    { from: 0, to: 3, msg: 'AGENT→論文: 論文分析依頼中...' },
+    { from: 3, to: 0, msg: '論文→AGENT: 論文要約を送信中...' },
   ]
   const [activeIdx, setActiveIdx] = useState(0)
   const [log, setLog] = useState<string[]>([])
@@ -426,12 +428,6 @@ function AgentCommScreen() {
     }, 1800)
     return () => clearInterval(timer)
   }, [activeIdx])
-
-  // SVG座標変換
-  const getPos = (a: any) => ({
-    x: 0.5 + (a.x-50)/100*0.8,
-    y: 0.5 + (a.y-50)/100*0.7
-  })
 
   return (
     <div className="agent-comm-bg-root">
@@ -450,7 +446,7 @@ function AgentCommScreen() {
           {/* 左側：ネットワーク図 */}
           <div className="agent-comm-left-panel">
             <svg className="agent-comm-network" viewBox="0 0 1000 700">
-              {/* ライン */}
+              {/* ライン（中心と周囲を全て繋ぐ） */}
               {flows.map((f, i) => {
                 const from = agents[f.from], to = agents[f.to]
                 return (
@@ -459,46 +455,67 @@ function AgentCommScreen() {
                     x1={from.x*10} y1={from.y*7}
                     x2={to.x*10} y2={to.y*7}
                     stroke={i===activeIdx ? '#5bb6c9' : '#b6c2d9'}
-                    strokeWidth={i===activeIdx ? 7 : 4}
-                    strokeDasharray="8 8"
+                    strokeWidth={i===activeIdx ? 8 : 4}
+                    strokeDasharray="10 8"
                     initial={{opacity:0}}
                     animate={{opacity:1}}
-                    transition={{duration:0.7, delay:0.2*i}}
+                    transition={{duration:0.7, delay:0.1*i}}
                     filter={i===activeIdx ? 'url(#glow)' : ''}
                   />
                 )
               })}
-              {/* 光点アニメ */}
+              {/* 光点アニメ（アクティブな通信） */}
               {flows.map((f, i) => {
                 if(i!==activeIdx) return null
                 const from = agents[f.from], to = agents[f.to]
                 return (
                   <motion.circle
                     key={i}
-                    cx={from.x*10 + (to.x-from.x)*10*0.5}
-                    cy={from.y*7 + (to.y-from.y)*7*0.5}
-                    r={18}
+                    cx={from.x*10}
+                    cy={from.y*7}
+                    r={14}
                     fill="#5bb6c9"
                     filter="url(#glow)"
                     animate={{
                       cx: [from.x*10, to.x*10],
                       cy: [from.y*7, to.y*7],
                     }}
-                    transition={{duration:1.6, repeat:Infinity, repeatType:'loop', ease:'easeInOut'}}
+                    transition={{duration:1.3, repeat:Infinity, repeatType:'loop', ease:'easeInOut'}}
                     style={{mixBlendMode:'screen'}}
                   />
                 )
               })}
-              {/* ノード */}
+              {/* ノード（中心＋周囲） */}
               {agents.map((a, i) => (
                 <g key={a.name}>
+                  {/* 波紋アニメーション */}
                   <motion.circle
                     cx={a.x*10}
                     cy={a.y*7}
-                    r={52}
+                    r={i===0?180:120}
+                    fill="none"
+                    stroke={a.color}
+                    strokeWidth={i===activeIdx||((activeIdx+1)%agents.length)===i?18:9}
+                    opacity={0.13}
+                    animate={i===activeIdx?{r:[i===0?180:120,i===0?230:160],opacity:[0.13,0]}:{}}
+                    transition={i===activeIdx?{duration:1.2, repeat:Infinity, repeatType:'loop'}:{}}
+                  />
+                  {/* サブ円（多重グラデーション） */}
+                  <circle
+                    cx={a.x*10}
+                    cy={a.y*7}
+                    r={i===0?150:98}
+                    fill="url(#nodeSubGrad)"
+                    opacity={0.22}
+                  />
+                  {/* ノード本体（多重グラデーション＋内側グロー） */}
+                  <motion.circle
+                    cx={a.x*10}
+                    cy={a.y*7}
+                    r={i===0?120:78}
                     fill="url(#nodeGrad)"
                     stroke={a.color}
-                    strokeWidth={i===activeIdx||((activeIdx+1)%4)===i?8:4}
+                    strokeWidth={i===activeIdx||((activeIdx+1)%agents.length)===i?24:12}
                     filter="url(#glow)"
                     animate={{
                       scale: i===activeIdx ? 1.13 : 1,
@@ -506,21 +523,50 @@ function AgentCommScreen() {
                     }}
                     transition={{duration:0.5}}
                   />
-                  <text x={a.x*10} y={a.y*7+8} textAnchor="middle" fontSize="2.1rem" fontWeight="bold" fill="#222" style={{userSelect:'none',letterSpacing:'1.5px'}}>{a.name}</text>
+                  {/* 内側グロー */}
+                  <circle
+                    cx={a.x*10}
+                    cy={a.y*7}
+                    r={i===0?100:62}
+                    fill="url(#nodeInnerGlow)"
+                    opacity={0.45}
+                  />
+                  {/* パーティクル風装飾（中心ノードのみ） */}
+                  {i===0 && Array.from({length:16}).map((_,j)=>(
+                    <circle
+                      key={j}
+                      cx={a.x*10 + Math.cos((j/16)*2*Math.PI)*(i===0?170:110)}
+                      cy={a.y*7 + Math.sin((j/16)*2*Math.PI)*(i===0?170:110)}
+                      r={9+3*Math.sin(Date.now()/700+j)}
+                      fill="#5bb6c9"
+                      opacity={0.18+0.12*Math.sin(Date.now()/700+j)}
+                    />
+                  ))}
+                  {/* ノード名 */}
+                  <text x={a.x*10} y={a.y*7+18} textAnchor="middle" fontSize={i===0?"3.7rem":"2.8rem"} fontWeight="bold" fill="#222" style={{userSelect:'none',letterSpacing:'1.5px'}}>{a.name}</text>
                 </g>
               ))}
-              {/* SVGフィルタ */}
+              {/* SVGフィルタ・グラデーション */}
               <defs>
                 <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                  <feGaussianBlur stdDeviation="18" result="coloredBlur"/>
                   <feMerge>
                     <feMergeNode in="coloredBlur"/>
                     <feMergeNode in="SourceGraphic"/>
                   </feMerge>
                 </filter>
                 <radialGradient id="nodeGrad" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#fff" stopOpacity="0.95"/>
-                  <stop offset="100%" stopColor="#b6c2d9" stopOpacity="0.45"/>
+                  <stop offset="0%" stopColor="#fff" stopOpacity="0.99"/>
+                  <stop offset="60%" stopColor="#b6c2d9" stopOpacity="0.55"/>
+                  <stop offset="100%" stopColor="#5bb6c9" stopOpacity="0.38"/>
+                </radialGradient>
+                <radialGradient id="nodeSubGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#fff" stopOpacity="0.12"/>
+                  <stop offset="100%" stopColor="#5bb6c9" stopOpacity="0.18"/>
+                </radialGradient>
+                <radialGradient id="nodeInnerGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#5bb6c9" stopOpacity="0.22"/>
+                  <stop offset="100%" stopColor="#fff" stopOpacity="0.01"/>
                 </radialGradient>
               </defs>
             </svg>
