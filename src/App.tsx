@@ -5,6 +5,7 @@ import './App.css'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+
   return (
     <Routes>
       <Route path="/" element={
@@ -18,6 +19,7 @@ function App() {
 
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [loading, setLoading] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -25,32 +27,71 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
       onLogin()
     }, 800)
   }
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.75
+    }
+  }, [])
   return (
-    <div className="app">
-      <motion.form
-        className="login-glass-card"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        onSubmit={handleSubmit}
-      >
-        <h1 className="login-title">Cancer Agent</h1>
-        <p className="login-desc">AIがん診断サポートシステムへログイン</p>
-        <div className="login-fields">
-          <input className="login-input" type="text" placeholder="ユーザー名" autoFocus required />
-          <input className="login-input" type="password" placeholder="パスワード" required />
-        </div>
-        <motion.button
-          className="login-btn"
-          type="submit"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          disabled={loading}
+    <div className="import-bg-root">
+      <video ref={videoRef} className="import-bg-video" src="/Back.mp4" autoPlay loop muted playsInline />
+      <div className="app import-glass-app">
+        <motion.form
+          className="container import-glass-container"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          onSubmit={handleSubmit}
+          style={{paddingTop:'2.5rem', paddingBottom:'2.5rem', minWidth:380, minHeight:420, maxWidth:'95vw', maxHeight:'95vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center'}}
         >
-          {loading ? 'ログイン中...' : 'ログイン'}
-        </motion.button>
-      </motion.form>
+          <h1 className="title" style={{marginBottom:'1.5rem'}}>CANCER AGENT</h1>
+          <div className="login-fields" style={{width:'100%', display:'flex', flexDirection:'column', gap:'1.5rem', marginBottom:'2.2rem'}}>
+            <input className="login-input import-login-input center-input" type="text" placeholder="ユーザー名" autoFocus required />
+            <input className="login-input import-login-input center-input" type="password" placeholder="パスワード" required />
+          </div>
+          <motion.button
+            className="start-button"
+            type="submit"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.96 }}
+            disabled={loading}
+            style={{marginTop:'0.5rem', width:'100%'}}
+          >
+            {loading ? 'Login...' : 'Login'}
+          </motion.button>
+        </motion.form>
+      </div>
     </div>
+  )
+}
+
+function WelcomeScreen() {
+  return (
+    <div className="app" style={{justifyContent:'center',alignItems:'center',minHeight:'100vh',background:'linear-gradient(135deg, #fff 0%, #f7fafd 100%)',position:'relative',zIndex:2000}}>
+      <WelcomeEffectText text="Welcome to CANCER AGENT" />
+    </div>
+  )
+}
+
+function WelcomeEffectText({ text }: { text: string }) {
+  // 1文字ずつフェードイン＋グラデーション＋拡大縮小エフェクト
+  return (
+    <h1 className="welcome-effect-title">
+      {text.split('').map((char, i) => (
+        <span
+          key={i}
+          className="welcome-fade-span"
+          style={{
+            animationName: 'welcome-fade',
+            animationDuration: '0.7s',
+            animationDelay: `${i * 0.02}s`,
+            animationFillMode: 'forwards',
+            animationTimingFunction: 'cubic-bezier(.4,2,.3,1)',
+            display: 'inline-block',
+          }}
+        >{char === ' ' ? <>&nbsp;</> : char}</span>
+      ))}
+    </h1>
   )
 }
 
@@ -58,7 +99,14 @@ function ImportScreen() {
   const [isDragOver, setIsDragOver] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.75
+    }
+  }, [])
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file)
@@ -101,110 +149,107 @@ function ImportScreen() {
   }
 
   return (
-    <div className="app">
-      <motion.div
-        className="container"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-      >
-        {/* タイトル */}
-        <motion.h1
-          className="title"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
-        >
-          Cancer Agent
-        </motion.h1>
-
-        {/* ファイルアップロードエリア */}
+    <div className="import-bg-root">
+      <video ref={videoRef} className="import-bg-video" src="/Back.mp4" autoPlay loop muted playsInline />
+      <div className="app import-glass-app">
         <motion.div
-          className={`upload-area ${isDragOver ? 'drag-over' : ''} ${selectedFile ? 'has-file' : ''}`}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onClick={handleUploadClick}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          initial={{ opacity: 0, y: 30 }}
+          className="container import-glass-container"
+          initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <div className="upload-content">
-            <motion.div
-              className="upload-icon"
-              animate={{ rotate: isDragOver ? 360 : 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M12 16L12 8M12 8L15 11M12 8L9 11"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M3 15V16C3 18.8284 3 20.2426 3.87868 21.1213C4.75736 22 6.17157 22 9 22H15C17.8284 22 19.2426 22 20.1213 21.1213C21 20.2426 21 18.8284 21 16V15"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </motion.div>
-            {selectedFile ? (
+          {/* タイトル */}
+          <motion.h1
+            className="title"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+          >
+            Cancer Agent
+          </motion.h1>
+
+          {/* ファイルアップロードエリア */}
+          <motion.div
+            className={`upload-area ${isDragOver ? 'drag-over' : ''} ${selectedFile ? 'has-file' : ''}`}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onClick={handleUploadClick}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <div className="upload-content">
               <motion.div
-                className="file-info"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
+                className="upload-icon"
+                animate={{ rotate: isDragOver ? 360 : 0 }}
+                transition={{ duration: 0.5 }}
               >
-                <p className="file-name">{selectedFile.name}</p>
-                <p className="file-size">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M12 16L12 8M12 8L15 11M12 8L9 11"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M3 15V16C3 18.8284 3 20.2426 3.87868 21.1213C4.75736 22 6.17157 22 9 22H15C17.8284 22 19.2426 22 20.1213 21.1213C21 20.2426 21 18.8284 21 16V15"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </motion.div>
-            ) : (
-              <div className="upload-text">
-                <p className="upload-main-text">
-                  {isDragOver ? 'ファイルをドロップしてください' : 'ファイルを選択またはドラッグ&ドロップ'}
-                </p>
-                <p className="upload-sub-text">
-                  サポート形式: JPG, PNG, DICOM, PDF
-                </p>
-              </div>
-            )}
-          </div>
+              {selectedFile ? (
+                <motion.div
+                  className="file-info"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <p className="file-name">{selectedFile.name}</p>
+                  <p className="file-size">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                </motion.div>
+              ) : (
+                <div className="upload-text">
+                  <p className="upload-main-text">
+                    {isDragOver ? 'ファイルをドロップしてください' : 'ファイルを選択またはドラッグ&ドロップ'}
+                  </p>
+                  <p className="upload-sub-text">
+                    サポート形式: JPG, PNG, DICOM, PDF
+                  </p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* 隠しファイル入力 */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".jpg,.jpeg,.png,.dicom,.dcm,.pdf"
+            onChange={handleFileInputChange}
+            style={{ display: 'none' }}
+          />
+
+          {/* Startボタン */}
+          <motion.button
+            className="start-button"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={handleStart}
+            disabled={!selectedFile}
+          >
+            Start
+          </motion.button>
         </motion.div>
-
-        {/* 隠しファイル入力 */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".jpg,.jpeg,.png,.dicom,.dcm,.pdf"
-          onChange={handleFileInputChange}
-          style={{ display: 'none' }}
-        />
-
-        {/* Startボタン */}
-        <motion.button
-          className="start-button"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.96 }}
-          onClick={handleStart}
-          disabled={!selectedFile}
-        >
-          Start
-        </motion.button>
-      </motion.div>
-      {/* 背景の装飾要素 */}
-      <div className="background-elements">
-        <div className="floating-orb orb-1"></div>
-        <div className="floating-orb orb-2"></div>
-        <div className="floating-orb orb-3"></div>
       </div>
     </div>
   )
@@ -213,6 +258,12 @@ function ImportScreen() {
 function DashboardScreen() {
   // 進行ゲージのアニメーション用
   const [progress, setProgress] = useState([0, 0, 0, 0])
+  const videoRef = useRef<HTMLVideoElement>(null)
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.75
+    }
+  }, [])
   useEffect(() => {
     const target = [100, 100, 100, 100]
     let frame: number
@@ -222,7 +273,8 @@ function DashboardScreen() {
       current = current.map((v, i) => {
         if (v < target[i]) {
           updated = true
-          return Math.min(v + Math.ceil((target[i] - v) * 0.08) + 1, target[i])
+          // さらに5倍遅く（0.004）
+          return Math.min(v + Math.ceil((target[i] - v) * 0.004) + 1, target[i])
         }
         return v
       })
@@ -234,9 +286,12 @@ function DashboardScreen() {
   }, [])
 
   return (
-    <div className="dashboard-root">
-      <Sidebar progress={progress} />
-      <MainPanel />
+    <div className="dashboard-bg-root">
+      <video ref={videoRef} className="import-bg-video" src="/Back.mp4" autoPlay loop muted playsInline />
+      <div className="dashboard-root">
+        <Sidebar progress={progress} />
+        <MainPanel />
+      </div>
     </div>
   )
 }
@@ -265,12 +320,15 @@ function Sidebar({ progress }: { progress: number[] }) {
             </div>
             <div className="progress-bar-bg">
               <motion.div
-                className="progress-bar"
+                className="progress-bar hi-tech-bar"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress[i]}%` }}
-                transition={{ duration: 1.2, delay: 0.2 * i }}
+                transition={{ duration: 12, delay: 0.2 * i, ease: [0.22, 1, 0.36, 1] }}
                 style={{ background: `var(--${agent.color}-gradient)` }}
-              />
+              >
+                <span className="bar-glow"></span>
+                <span className="bar-wave"></span>
+              </motion.div>
             </div>
             <div className="progress-label">タスク進行中 {progress[i]}%</div>
           </div>
@@ -287,24 +345,22 @@ function Sidebar({ progress }: { progress: number[] }) {
 function MainPanel() {
   // 画像の右側の治療レコメンデーション画面を再現
   return (
-    <main className="main-panel">
+    <main className="main-panel" style={{display:'flex', flexDirection:'column', height:'100vh'}}>
       <div className="main-header">
-        <h2>治療レコメンデーション</h2>
+        <h2><span role="img" aria-label="dashboard">📊</span> ダッシュボード</h2>
         <div className="main-header-actions">
-          <button className="icon-btn">⚙️</button>
-          <button className="icon-btn">🔄</button>
-          <button className="icon-btn">🔍</button>
-          <button className="icon-btn">📤</button>
+          <button className="agent-comm-aurora-btn">エージェント連携</button>
         </div>
       </div>
-      <div className="main-content">
-        <div className="patient-info">
-          <div>患者ID: PT-20240615-001</div>
-          <div>診断名: 非小細胞肺がん（NSCLC）Stage IIIB</div>
+      <div className="recommendation-block" style={{flex:1, display:'flex', flexDirection:'column', minHeight:0, overflowY:'auto'}}>
+        <div className="recommendation-header-area">
+          <h3 className="recommendation-title">治療法レコメンデーション</h3>
+          <div className="patient-info-area">
+            <div className="patient-id">患者ID: PT-20240615-001</div>
+            <div className="patient-diagnosis">診断名: 非小細胞肺がん（NSCLC）Stage IIIB</div>
+          </div>
         </div>
-        <div className="recommendation-block">
-          <h3>💊 治療法レコメンデーション</h3>
-          <div className="recommendation-text">
+        <div className="recommendation-text">
 {`
 遺伝子プロファイリングの結果、EGFR変異陽性（エクソン19欠失）が確認されました。また、PD-L1発現率は60%です。最新の臨床試験データと患者の臨床情報に基づき、以下の治療法を推奨します：
 
@@ -337,46 +393,9 @@ function MainPanel() {
 ・家族や多職種チームと連携し、心理的・社会的支援も強化
 ・治療終了後も長期的な経過観察を行い、再発・転移の早期発見に努める
 `}
-          </div>
         </div>
-        <AgentCommInline />
       </div>
     </main>
-  )
-}
-
-function AgentCommInline() {
-  // Agent間通信のリアルタイム連携表示
-  const flows = [
-    { from: '治療法エージェント', to: '新薬開発エージェント', msg: 'データ分析結果を共有中...' },
-    { from: '論文分析エージェント', to: '治療法エージェント', msg: '治療法の提案を送信中...' },
-    { from: '治療法エージェント', to: '論文分析エージェント', msg: '新薬情報を更新中...' },
-  ]
-  const [activeIdx, setActiveIdx] = useState(0)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveIdx(idx => (idx + 1) % flows.length)
-    }, 1800)
-    return () => clearInterval(timer)
-  }, [flows.length])
-
-  return (
-    <div className="agent-comm-glass-card" style={{marginTop:'2.2rem', marginBottom:'0', minWidth:320, maxWidth:600, width:'100%', padding:'1.2rem 1.1rem', gap:'1.1rem'}}>
-      <div className="agent-comm-header" style={{marginBottom:'0.2rem'}}>
-        <span className="agent-comm-title" style={{fontSize:'1.08rem'}}>💬 エージェント間リアルタイム連携</span>
-      </div>
-      <div className="agent-comm-list" style={{gap:'0.5rem', marginBottom:'0.2rem'}}>
-        {flows.map((f, i) => (
-          <div key={i} className={`agent-comm-row${i === activeIdx ? ' active' : ''}`} style={{fontSize:'0.97rem', padding:'0.1rem 0'}}>
-            <span className="agent-comm-from">{f.from}</span>
-            <span className="agent-comm-arrow">→</span>
-            <span className="agent-comm-to">{f.to}</span>
-            <span className="agent-comm-msg">{f.msg}</span>
-            {i === activeIdx && <span className="agent-comm-dot"></span>}
-          </div>
-        ))}
-      </div>
-    </div>
   )
 }
 
