@@ -44,7 +44,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           onSubmit={handleSubmit}
           style={{paddingTop:'2.5rem', paddingBottom:'2.5rem', minWidth:380, minHeight:420, maxWidth:'95vw', maxHeight:'95vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center'}}
         >
-          <h1 className="title" style={{marginBottom:'1.5rem'}}>CANCER AGENT</h1>
+          <h1 className="login-title" style={{marginBottom:'1.5rem'}}>CANCER AGENT</h1>
           <div className="login-fields" style={{width:'100%', display:'flex', flexDirection:'column', gap:'1.5rem', marginBottom:'2.2rem'}}>
             <input className="login-input import-login-input center-input" type="text" placeholder="ユーザー名" autoFocus required />
             <input className="login-input import-login-input center-input" type="password" placeholder="パスワード" required />
@@ -160,7 +160,7 @@ function ImportScreen() {
         >
           {/* タイトル */}
           <motion.h1
-            className="title"
+            className="import-title"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2 }}

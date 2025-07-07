@@ -54,12 +54,12 @@ body, #root {
   letter-spacing: 2.5px;
   text-align: center;
   text-transform: uppercase;
-  color: #111;
-  background: none;
-  -webkit-background-clip: initial;
-  -webkit-text-fill-color: initial;
-  background-clip: initial;
-  text-shadow: 0 0 24px #fff, 0 0 48px #fff, 0 2px 8px #fff, 0 0 2px #fff;
+  background: linear-gradient(90deg, #5bb6c9 0%, #b6c2d9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.07);
   position: relative;
   z-index: 10;
 }
@@ -1277,5 +1277,32 @@ body, #root {
   .agent-comm-log-row {
     font-size: 0.95rem;
     padding: 0.4rem 1rem;
+  }
+}
+
+/* ログイン・インポート画面専用タイトル */
+.login-title, .import-title {
+  font-family: 'Sora', 'Inter', 'Avenir', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin-bottom: 2.2rem;
+  letter-spacing: 2.5px;
+  text-align: center;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #5bb6c9 0%, #b6c2d9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.07);
+  position: relative;
+  z-index: 10;
+}
+@media (max-width: 600px) {
+  .login-title, .import-title {
+    font-size: 1.7rem;
+    margin-bottom: 1.2rem;
+    letter-spacing: 1.2px;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.07);
   }
 } 
