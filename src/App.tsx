@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import './App.css'
 
@@ -344,12 +344,13 @@ function Sidebar({ progress }: { progress: number[] }) {
 
 function MainPanel() {
   // 画像の右側の治療レコメンデーション画面を再現
+  const navigate = useNavigate();
   return (
     <main className="main-panel" style={{display:'flex', flexDirection:'column', height:'100vh'}}>
       <div className="main-header">
         <h2><span role="img" aria-label="dashboard">📊</span> ダッシュボード</h2>
         <div className="main-header-actions">
-          <button className="agent-comm-aurora-btn">エージェント連携</button>
+          <button className="agent-comm-aurora-btn" onClick={()=>navigate('/agent-comm')}>エージェント連携</button>
         </div>
       </div>
       <div className="recommendation-block" style={{flex:1, display:'flex', flexDirection:'column', minHeight:0, overflowY:'auto'}}>
@@ -400,43 +401,145 @@ function MainPanel() {
 }
 
 function AgentCommScreen() {
-  // 通信ログのサンプルデータ
+  // エージェント情報
+  const agents = [
+    { name: 'CANCER AGENT', color: '#f472b6', x: 50, y: 10, icon: '🧬' },
+    { name: '治療法エージェント', color: '#6476b6', x: 10, y: 70, icon: '💊' },
+    { name: '新薬開発エージェント', color: '#5bb6c9', x: 90, y: 70, icon: '🧪' },
+    { name: '論文分析エージェント', color: '#facc15', x: 50, y: 90, icon: '📄' },
+  ]
+  // 通信フロー
   const flows = [
-    { from: '治療法エージェント', to: '新薬開発エージェント', msg: 'データ分析結果を共有' },
-    { from: '論文分析エージェント', to: '治療法エージェント', msg: '治療法の提案を送信' },
-    { from: '治療法エージェント', to: '論文分析エージェント', msg: '新薬情報を更新' },
+    { from: 1, to: 2, msg: '治療法→新薬: データ分析結果を送信中...' },
+    { from: 2, to: 3, msg: '新薬→論文: 新薬情報を共有中...' },
+    { from: 3, to: 0, msg: '論文→AGENT: 論文要約を送信中...' },
+    { from: 0, to: 1, msg: 'AGENT→治療法: 全体連携を最適化中...' },
   ]
   const [activeIdx, setActiveIdx] = useState(0)
+  const [log, setLog] = useState<string[]>([])
+  const [counter, setCounter] = useState(0)
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveIdx(idx => (idx + 1) % flows.length)
+      setCounter(c => c + Math.floor(Math.random()*3+1))
+      setLog(l => [flows[(activeIdx)%flows.length].msg, ...l].slice(0, 6))
     }, 1800)
     return () => clearInterval(timer)
-  }, [flows.length])
+  }, [activeIdx])
+
+  // SVG座標変換
+  const getPos = (a: any) => ({
+    x: 0.5 + (a.x-50)/100*0.8,
+    y: 0.5 + (a.y-50)/100*0.7
+  })
 
   return (
-    <div className="app" style={{background:'linear-gradient(135deg, #fff 0%, #f7fafd 100%)'}}>
-      <div className="agent-comm-glass-card">
-        <div className="agent-comm-header">
-          <span className="agent-comm-title">エージェント間通信</span>
-        </div>
-        <div className="agent-comm-list">
-          {flows.map((f, i) => (
-            <div key={i} className={`agent-comm-row${i === activeIdx ? ' active' : ''}`}>
-              <span className="agent-comm-from">{f.from}</span>
-              <span className="agent-comm-arrow">→</span>
-              <span className="agent-comm-to">{f.to}</span>
-              <span className="agent-comm-msg">：{f.msg}</span>
-              {i === activeIdx && <span className="agent-comm-dot"></span>}
+    <div className="agent-comm-bg-root">
+      <video className="import-bg-video" src="/Back.mp4" autoPlay loop muted playsInline style={{filter:'brightness(0.7) blur(0px)'}} />
+      <div className="agent-comm-aurora-bg"></div>
+      <div className="agent-comm-main">
+        <motion.h1
+          className="title"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+        >
+          エージェント連携
+        </motion.h1>
+        <div className="agent-comm-container">
+          {/* 左側：ネットワーク図 */}
+          <div className="agent-comm-left-panel">
+            <svg className="agent-comm-network" viewBox="0 0 1000 700">
+              {/* ライン */}
+              {flows.map((f, i) => {
+                const from = agents[f.from], to = agents[f.to]
+                return (
+                  <motion.line
+                    key={i}
+                    x1={from.x*10} y1={from.y*7}
+                    x2={to.x*10} y2={to.y*7}
+                    stroke={i===activeIdx ? '#5bb6c9' : '#b6c2d9'}
+                    strokeWidth={i===activeIdx ? 7 : 4}
+                    strokeDasharray="8 8"
+                    initial={{opacity:0}}
+                    animate={{opacity:1}}
+                    transition={{duration:0.7, delay:0.2*i}}
+                    filter={i===activeIdx ? 'url(#glow)' : ''}
+                  />
+                )
+              })}
+              {/* 光点アニメ */}
+              {flows.map((f, i) => {
+                if(i!==activeIdx) return null
+                const from = agents[f.from], to = agents[f.to]
+                return (
+                  <motion.circle
+                    key={i}
+                    cx={from.x*10 + (to.x-from.x)*10*0.5}
+                    cy={from.y*7 + (to.y-from.y)*7*0.5}
+                    r={18}
+                    fill="#5bb6c9"
+                    filter="url(#glow)"
+                    animate={{
+                      cx: [from.x*10, to.x*10],
+                      cy: [from.y*7, to.y*7],
+                    }}
+                    transition={{duration:1.6, repeat:Infinity, repeatType:'loop', ease:'easeInOut'}}
+                    style={{mixBlendMode:'screen'}}
+                  />
+                )
+              })}
+              {/* ノード */}
+              {agents.map((a, i) => (
+                <g key={a.name}>
+                  <motion.circle
+                    cx={a.x*10}
+                    cy={a.y*7}
+                    r={52}
+                    fill="url(#nodeGrad)"
+                    stroke={a.color}
+                    strokeWidth={i===activeIdx||((activeIdx+1)%4)===i?8:4}
+                    filter="url(#glow)"
+                    animate={{
+                      scale: i===activeIdx ? 1.13 : 1,
+                      opacity: 1
+                    }}
+                    transition={{duration:0.5}}
+                  />
+                  <text x={a.x*10} y={a.y*7+8} textAnchor="middle" fontSize="2.1rem" fontWeight="bold" fill="#222" style={{userSelect:'none',letterSpacing:'1.5px'}}>{a.name}</text>
+                </g>
+              ))}
+              {/* SVGフィルタ */}
+              <defs>
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+                <radialGradient id="nodeGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#fff" stopOpacity="0.95"/>
+                  <stop offset="100%" stopColor="#b6c2d9" stopOpacity="0.45"/>
+                </radialGradient>
+              </defs>
+            </svg>
+          </div>
+          
+          {/* 右側：通信ログ・進行状況 */}
+          <div className="agent-comm-right-panel">
+            <div className="agent-comm-global-status">全エージェント連携中</div>
+            <div className="agent-comm-counter">通信件数: <span>{counter}</span></div>
+            <div className="agent-comm-log-list">
+              {log.map((l, i) => (
+                <div key={i} className={`agent-comm-log-row${i===0?' active':''}`}>{l}</div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="agent-comm-section">
-          <div className="agent-comm-subtitle">タスク詳細</div>
-          <div className="agent-comm-task">臨床試験データ収集</div>
-          <button className="agent-comm-btn">
-            <span className="agent-comm-btn-icon">&#8767;</span> 有効性評価
-          </button>
+            <div className="agent-comm-buttons">
+              <button className="agent-comm-sim-btn">シミュレーション再生</button>
+              <button className="agent-comm-history-btn">通信履歴</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
